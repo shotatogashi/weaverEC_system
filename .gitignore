@@ -1,0 +1,4 @@
+*.xml
+/vendor
+token.json
+client_secret.json
