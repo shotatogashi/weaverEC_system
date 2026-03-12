@@ -283,7 +283,18 @@ function create_google_client($redirect_uri = '') {
     $client = new Google_Client();
     $client->setAuthConfig('client_secret.json');
     $client->addScope(Google_Service_Drive::DRIVE);
-    $client->setRedirectUri('http://wkimono.tokyo/app/rakuten_api/'.$redirect_uri);
+    // 現在のサーバーのURLを動的に使用（旧サーバーへの転送を防ぐ）
+    if (!empty($GLOBALS['config']['google_redirect_base_url'])) {
+        $base_url = rtrim($GLOBALS['config']['google_redirect_base_url'], '/') . '/';
+    } else {
+        // さくら共有SSLはプロキシ経由のため $_SERVER['HTTPS'] が未設定になる場合がある
+        $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || !empty($_SERVER['HTTP_X_SAKURA_FORWARDED_FOR'])  // さくら共有SSL
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        $protocol = $is_https ? 'https' : 'http';
+        $base_url = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'weaver-ec.sakura.ne.jp') . '/';
+    }
+    $client->setRedirectUri($base_url . $redirect_uri);
     $client->setAccessType('offline');
     $client->setApprovalPrompt('force');
     
@@ -343,8 +354,11 @@ function get_google_token($redirect_uri = '') {
 function auth_manually($client) {
 	// 新しいトークンを取得
 	$auth_url = $client->createAuthUrl();
+	$redirect_uri = $client->getRedirectUri();
 	$header = 'Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL);
-	echo "トークンは期限切れです。<a href='".filter_var($auth_url, FILTER_SANITIZE_URL)."' class='button1'>再認証</a>"; die();
+	echo "トークンは期限切れです。<a href='".filter_var($auth_url, FILTER_SANITIZE_URL)."' class='button1'>再認証</a>";
+	echo "<br><small>※ redirect_uri_mismatch が出る場合、Google Cloud Console の「承認済みのリダイレクト URI」に以下を登録してください：<br><code>".htmlspecialchars($redirect_uri)."</code></small>";
+	die();
 	//header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
 }
 
