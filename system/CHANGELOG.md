@@ -1,5 +1,24 @@
 # 変更履歴
 
+## [1.0.1] - 2025-03-17
+
+### 修正（app/orders 注文処理システムの安定性強化）
+
+#### 高優先
+
+- **楽天APIレスポンスの null チェック** (`lib.php`): API 応答が不正・null の場合のエラーハンドリングを追加
+- **convert_order_info / convert_sample_order_info の null・空配列チェック** (`lib.php`): `PackageModelList`、`ItemModelList`、`SkuModelList`、`OrdererModel`、`PointModel` の存在チェックを追加。未定義の決済コード・remarks の null 対策
+- **ファイル作成・削除のトランザクション的扱い** (`order_book.php`): 新規ファイル2件の作成が両方成功した場合のみ既存ファイルを削除。作成失敗時は既存ファイルを変更しない
+- **preprocess.php の例外処理** (`inc/preprocess.php`): 401 以外の Google API 例外発生時に `exit` を追加し、続行による二重エラーを防止
+
+#### 中優先
+
+- **CSV 改行コードの正規化** (`order_book.php`): `\r\n` / `\r` を `\n` に統一し、処理済み判定のずれを防止
+- **month パラメータの検証** (`inc/last_month.php`): `$_GET['month']` を整数化し、-12〜12 の範囲のみ許可
+- **create_file / delete の例外チェック** (`order_book.php`): ファイル作成・削除の try-catch を追加し、エラー時に適切なメッセージを表示
+
+---
+
 ## [1.0.0] - 2025-03-16
 
 ### 追加
