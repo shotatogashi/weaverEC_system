@@ -2,3 +2,11 @@
 /vendor
 token.json
 client_secret.json
+
+# app/orders 用（セキュリティ強化版）
+.env
+.env.local
+.env.*.local
+app/orders/token*.json
+app/orders/data/license_key.txt
+.vscode/sftp.json
