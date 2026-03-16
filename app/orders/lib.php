@@ -386,7 +386,6 @@ function auth_manually($client) {
 	$redirect_uri = $client->getRedirectUri();
 	$header = 'Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL);
 	echo "トークンは期限切れです。<a href='".filter_var($auth_url, FILTER_SANITIZE_URL)."' class='button1'>再認証</a>";
-	echo "<br><small>※ redirect_uri_mismatch が出る場合、Google Cloud Console の「承認済みのリダイレクト URI」に以下を登録してください：<br><code>".htmlspecialchars($redirect_uri)."</code></small>";
 	die();
 	//header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
 }
