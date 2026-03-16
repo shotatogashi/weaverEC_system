@@ -73,9 +73,10 @@ $csv_contents = $existing_csv->getBody()->getContents();
 //echo "ファイル内容：".$file_contents."<br />\n";
 
 
-//// CSVファイルのコンテンツ
+//// CSVファイルのコンテンツ（改行コードを正規化して \r を除去）
+$csv_contents_normalized = str_replace(["\r\n", "\r"], "\n", $csv_contents);
 $r_order_num = array_keys($order_info);
-$r_csv_contents = explode("\n", $csv_contents);
+$r_csv_contents = array_map('trim', explode("\n", $csv_contents_normalized));
 $r_csv_merged = array_merge($r_csv_contents, $r_order_num);
 $r_csv_merged = array_unique($r_csv_merged);
 $r_csv_merged = array_diff($r_csv_merged, ['']);
@@ -92,9 +93,11 @@ echo "楽天APIから".count($order_info)."件取得<br />\n";
 $r_excluded_sample_order = [];
 $r_excluded_pending_order = [];
 foreach ($order as $key => $o) {
+	// PackageModelList[0] と ItemModelList の存在チェック
+	if (empty($o->PackageModelList[0]) || empty($o->PackageModelList[0]->ItemModelList)) {
+		continue;
+	}
 	// サンプル注文を削除
-	//echo "itemNumber: ".$o->PackageModelList[0]->ItemModelList[0]->itemNumber."<br />\n";
-	
 	// サンプル商品の除外を、複数商品の場合に対応。一つでも通常商品があれば除外しない。全てサンプルなら除外する
 	$sample_flg = TRUE;
 	foreach($o->PackageModelList[0]->ItemModelList as $item_model_list) {
@@ -149,13 +152,22 @@ echo "追記するデータの先頭40バイト：". htmlspecialchars(mb_substr(
 echo "追記するCSVの先頭40バイト：". htmlspecialchars(mb_substr($new_csv_contents, 0, 40), ENT_QUOTES, 'UTF-8')."<br />\n";
 echo "追記します<br />\n";
 
-// 新規ファイルを作成
-$new_file_id = create_file($service, $folder_id, $file_name, $new_contents);
-$new_csv_id = create_file($service, $folder_id, $csv_name, $new_csv_contents);
+// 新規ファイルを作成（両方成功した場合のみ既存ファイルを削除）
+try {
+	$new_file_id = create_file($service, $folder_id, $file_name, $new_contents);
+	$new_csv_id = create_file($service, $folder_id, $csv_name, $new_csv_contents);
 
-// 既存ファイルを削除
-$service->files->delete($file_id);
-$service->files->delete($csv_id);
+	// 両方の作成に成功した場合のみ既存ファイルを削除
+	try {
+		$service->files->delete($file_id);
+		$service->files->delete($csv_id);
+	} catch (Exception $e) {
+		echo "<p class=\"error\">警告: 新規ファイルは作成されましたが、既存ファイルの削除に失敗しました。手動で確認してください。エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</p>\n";
+	}
+} catch (Exception $e) {
+	echo "<p class=\"error\">エラー: ファイルの作成に失敗しました。既存ファイルは変更されていません。エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</p>\n";
+	die();
+}
 
 ?>
 <p><a href="update_license.php" class="button1">ライセンス更新</a></p>

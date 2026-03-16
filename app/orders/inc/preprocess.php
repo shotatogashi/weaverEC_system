@@ -22,6 +22,7 @@ try {
         exit;
     } else {
         echo 'An error occurred: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+        exit;
     }
 }
 

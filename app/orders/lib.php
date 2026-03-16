@@ -85,19 +85,29 @@ function get_order_info($secret_key, $license_key, $sample_flg = TRUE) {
 		$json_order_number = curl_api($curl, $params, $headers);
 		curl_close($curl);
 		
+		if ($json_order_number === null) {
+			echo "楽天APIの応答が不正です。ネットワークまたはAPIの状態を確認してください。";
+			die();
+		}
 		if (($json_order_number->Results->message ?? null) === 'Un-Authorised') {
 			echo "楽天APIの認証に失敗しました。ライセンスキー・シークレットキーの組み合わせが違います。";
 			die();
 		}
+		$order_number_list = $json_order_number->orderNumberList ?? [];
+		if (empty($order_number_list)) {
+			break;
+		}
 		$curl = curl_init('https://api.rms.rakuten.co.jp/es/2.0/order/getOrder/');
 		$params = json_encode([
-			'orderNumberList' => $json_order_number->orderNumberList,
+			'orderNumberList' => $order_number_list,
 			'version' => 7
 		]);
 		
 		$json = curl_api($curl, $params, $headers);
 
-		if (count($json->OrderModelList) == 0) break;
+		if ($json === null || count($json->OrderModelList ?? []) == 0) {
+			break;
+		}
 
 		$order = array_merge($order, $json->OrderModelList);
 		
@@ -127,6 +137,10 @@ function get_order_info($secret_key, $license_key, $sample_flg = TRUE) {
 
 // 無料サンプルの注文情報をテキストで出力
 function convert_sample_order_info($order_info) {
+	if (empty($order_info->PackageModelList[0]) || empty($order_info->PackageModelList[0]->SenderModel)
+		|| empty($order_info->OrdererModel)) {
+		return null;
+	}
 
     // お届け先情報
     $delivery_info = $order_info->PackageModelList[0]->SenderModel;
@@ -137,6 +151,7 @@ function convert_sample_order_info($order_info) {
 	// 1注文複数商品 対応
 	$item_output = "[商品]\n";
 	foreach ($order_info->PackageModelList as $package_info) {
+		if (empty($package_info->ItemModelList)) continue;
 		foreach ($package_info->ItemModelList as $item_info) {
 			$item_output .= "{$item_info->itemName}\n";
 			$item_output .= "{$item_info->selectedChoice}\n\n";
@@ -154,7 +169,10 @@ function convert_sample_order_info($order_info) {
 
 // 通常注文の注文情報をテキストで出力
 function convert_order_info($order_info) {
-	//print_r($order_info); die();
+	if (empty($order_info->PackageModelList[0]) || empty($order_info->PackageModelList[0]->SenderModel)
+		|| empty($order_info->OrdererModel) || empty($order_info->PackageModelList[0]->ItemModelList)) {
+		return null;
+	}
 	$list_settlement = [
 		1 => 'クレジットカード',
 		2 => '代金引換',
@@ -211,13 +229,13 @@ function convert_order_info($order_info) {
 
 	// 1注文複数商品 対応
 	foreach($order_info->PackageModelList[0]->ItemModelList as $item){
-		$item_name = $item->itemName;
-		$selected_choice = $item->selectedChoice;
-		$item_number = $item->itemNumber;
-		$price = $item->price;
-		$units = $item->units;
-		$sku_id = $item->SkuModelList[0]->variantId;
-		$sku_info = $item->SkuModelList[0]->skuInfo;
+		$item_name = $item->itemName ?? '';
+		$selected_choice = $item->selectedChoice ?? '';
+		$item_number = $item->itemNumber ?? '';
+		$price = $item->price ?? 0;
+		$units = $item->units ?? 0;
+		$sku_id = !empty($item->SkuModelList[0]) ? ($item->SkuModelList[0]->variantId ?? '') : '';
+		$sku_info = !empty($item->SkuModelList[0]) ? ($item->SkuModelList[0]->skuInfo ?? '') : '';
 	
 		$output .= "[商品]\n";
 		$output .= "{$item_name} ({$item_number})\n";
@@ -233,11 +251,11 @@ function convert_order_info($order_info) {
 		$output .= "価格  {$price}(円) x {$units}(個) = " . number_format($price * $units) . "(円) ※10%税込\n";
 		$output .= "----------\n";
 	}
-	$shipping_price = $order_info->PackageModelList[0]->postagePrice;
-	$used_point = $order_info->PointModel->usedPoint;
+	$shipping_price = $order_info->PackageModelList[0]->postagePrice ?? 0;
+	$used_point = !empty($order_info->PointModel) ? ($order_info->PointModel->usedPoint ?? 0) : 0;
 
 	$output .= "送料(税込)      " . number_format($shipping_price) . "(円) \n";
-	$output .= "クーポン利用 -" . number_format($order_info->couponAllTotalPrice) . "(円)\n";
+	$output .= "クーポン利用 -" . number_format($order_info->couponAllTotalPrice ?? 0) . "(円)\n";
 	$output .= "ポイント利用 -" . number_format($used_point) . "(円)\n";
 	$output .= "支払い金額     " . number_format($order_info->requestPrice) . "(円)\n";
 	$output .= "=====\n";
@@ -247,13 +265,14 @@ function convert_order_info($order_info) {
 	$output .= "        〒{$zip_code_1}-{$zip_code_2} {$prefecture}{$city}{$sub_address}\n";
 	$output .= "{$phone_number_1}-{$phone_number_2}-{$phone_number_3}\n\n";
 
-	$output .= "[決済方法] ". $list_settlement[$order_info->SettlementModel->settlementMethodCode]."\n";
+	$settlement_code = $order_info->SettlementModel->settlementMethodCode ?? 0;
+	$output .= "[決済方法] ". ($list_settlement[$settlement_code] ?? 'その他') ."\n";
 	$output .= "[配送方法] 宅配便\n";
-	$output .= "[お届け日時] ".$order_info->deliveryDate."\n\n";
+	$output .= "[お届け日時] ".($order_info->deliveryDate ?? '')."\n\n";
 	
 	// 備考はお客様が修正・追加した場合に限り表示
 	// $order_info->remarksの3行目以降を取得
-	$remarks = explode("\n", $order_info->remarks);
+	$remarks = explode("\n", (string)($order_info->remarks ?? ''));
 	$remarks_from_third_line = array_slice($remarks, 2);
 	$remarks_string = trim(implode("\n", $remarks_from_third_line));
 	
@@ -270,7 +289,7 @@ function convert_order_info($order_info) {
 		//echo "備考に変更がないので追記しない<br />\n";
 	} else {
 		echo "備考が変更されたので追記する。注文ID:".htmlspecialchars($order_number, ENT_QUOTES, 'UTF-8')."<br />\n";
-		$output .= "[備考]\n".$order_info->remarks."\n";
+		$output .= "[備考]\n".((string)($order_info->remarks ?? ''))."\n";
 	}
 	//$output .= "[備考]\n".$order_info->remarks."\n";
 	
