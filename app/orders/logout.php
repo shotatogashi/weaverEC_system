@@ -24,20 +24,28 @@ if ($file_handle === false) {
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>ログアウト</title>
 <link rel="stylesheet" type="text/css" href="../../css/main.css">
+<style>
+.center { text-align: center; }
+.center h1 { color: #666; font-weight: 400; }
+</style>
 </head>
 
 <body>
+<div class="center">
+<h1>ログアウト</h1>
 <p>結果：
   <?= htmlspecialchars($result_msg) ?>
 </p>
 <p><a href="order_book.php" class="button1">通常注文処理</a></p>
 <p><a href="./" class="button1">サンプル注文処理</a></p>
 <p><a href="update_license.php" class="button1">ライセンス更新</a></p>
+<p><a href="index.php" class="button1">トップに戻る</a></p>
 <p><br />
   <br />
   
   
   
 </p>
+</div>
 </body>
 </html>

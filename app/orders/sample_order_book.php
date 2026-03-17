@@ -31,9 +31,15 @@ require_once('lib.php');
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>サンプル注文処理</title>
 <link rel="stylesheet" type="text/css" href="../../css/main.css">
+<style>
+.center { text-align: center; }
+.center h1 { color: #666; font-weight: 400; }
+</style>
 </head>
 
 <body>
+<div class="center">
+<h1>サンプル注文処理</h1>
 <p><a href="update_license.php" class="button1">ライセンス更新</a></p>
 <?php
 require_once('inc/last_month.php');
@@ -78,5 +84,7 @@ foreach ($order_info as $order_num => $customer_info) {
 	echo "<br />\n";
 }
 ?>
+<p><a href="index.php" class="button1">トップに戻る</a></p>
+</div>
 </body>
 </html>
