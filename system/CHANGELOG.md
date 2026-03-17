@@ -1,5 +1,25 @@
 # 変更履歴
 
+## [1.0.2] - 2025-03-17
+
+### 追加（app/orders 認証強化）
+
+- **ログイン認証の追加** (`login.php`, `inc/auth.php`): 全ページへのアクセスにログインを必須化
+- **管理者/一般ユーザの役割分離**: 管理者（ADMIN_USERNAME/PASSWORD）は update_license.php のみ、一般ユーザ（USER_USERNAME/PASSWORD）は index.php, order_book.php, sample_order_book.php にアクセス可能（管理者は全ページにアクセス可能）
+- **セッションタイムアウト**: 1日（86400秒）で自動ログアウト
+- **リダイレクト先の検証** (`login.php`): 許可リスト（index.php, order_book.php, sample_order_book.php, update_license.php）以外へのリダイレクトを防止
+
+### 修正（app/orders）
+
+- **index.php, order_book.php, sample_order_book.php**: `require_user_auth()` を追加し、未認証時はログイン画面へリダイレクト
+
+### 新規ファイル
+
+- `app/orders/login.php` - ログイン画面
+- `app/orders/inc/auth.php` - 共通認証モジュール（require_admin_auth, require_user_auth）
+
+---
+
 ## [1.0.1] - 2025-03-17
 
 ### 修正（app/orders 注文処理システムの安定性強化）
