@@ -68,8 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit">更新</button>
     </form>
     <?php endif; ?>
-    <p><a href="order_book.php" class="button1">通常注文処理</a></p>
-    <p><a href="sample_order_book.php" class="button1">サンプル注文処理</a></p>
     <p><a href="index.php" class="button1">トップに戻る</a></p>
     </div>
 </body>

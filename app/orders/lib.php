@@ -386,6 +386,8 @@ function auth_manually($client) {
 	// 新しいトークンを取得（呼び出し元で die せず再認証ボタンを表示するため、未使用）
 	$auth_url = $client->createAuthUrl();
 	$GLOBALS['google_auth_url'] = $auth_url;
+	echo "<hr>\n";
+	echo "<h2 class=\"section-title\">Google Driveにデータを書き込みます</h2>\n";
 	echo "トークンは期限切れです。<a href='".filter_var($auth_url, FILTER_SANITIZE_URL)."' class='button1'>再認証</a>";
 }
 

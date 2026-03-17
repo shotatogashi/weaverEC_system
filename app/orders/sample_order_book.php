@@ -55,7 +55,6 @@ $google_redirect_uri = '';
 require_once('inc/preprocess.php');
 
 // 30件 ファイルアップロード
-echo "ヒットした注文件数は".count($order_info)."件です。<br />\n";
 if (count($order_info) == 0) {
 	echo "注文処理をスキップします。<br />\n";
 } elseif (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
@@ -84,6 +83,7 @@ foreach ($order_info as $order_num => $customer_info) {
 }
 } else {
 	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
+	echo "<hr>\n";
 }
 ?>
 <p><a href="index.php" class="button1">トップに戻る</a></p>

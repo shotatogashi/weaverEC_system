@@ -148,8 +148,7 @@ foreach ($r_csv_contents as $key => $order_num) {
 echo "除外処理後：".count($order_info)."件を追記<br />\n";
 if (count($order_info) == 0) {
 	echo "追記不要のため処理を終了します。<br />\n";
-	die();
-}
+} else {
 
 $new_contents = $file_contents."\n".implode("\n", $order_info);
 
@@ -177,8 +176,10 @@ try {
 	die();
 }
 
+}
 } else {
 	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
+	echo "<hr>\n";
 }
 ?>
 <p><a href="index.php" class="button1">トップに戻る</a></p>
