@@ -23,7 +23,7 @@ if ($file_handle === false) {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>ログアウト</title>
-<link rel="stylesheet" type="text/css" href="../css/main.css">
+<link rel="stylesheet" type="text/css" href="../../css/main.css">
 </head>
 
 <body>

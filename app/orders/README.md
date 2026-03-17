@@ -43,7 +43,7 @@ https://your-domain.com/app/orders/order_book.php
 
 ## アクセス
 
-- サンプル注文処理: `/app/orders/` または `/app/orders/index.php`
+- サンプル注文処理: `/app/orders/sample_order_book.php`
 - 通常注文処理: `/app/orders/order_book.php`
 - ライセンス更新: `/app/orders/update_license.php`
 

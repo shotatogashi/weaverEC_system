@@ -69,7 +69,7 @@ if ($show_form && empty($_SESSION['admin_authenticated'])) {
     <meta charset="UTF-8">
     <title>キーの更新フォーム - ログイン</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css">
 </head>
 <body>
     <?php if ($result_msg): ?>
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !empty($result_msg)) {
     <meta charset="UTF-8">
     <title>キーの更新フォーム</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css">
 </head>
 <body>
     <?php if ($result_msg): ?>

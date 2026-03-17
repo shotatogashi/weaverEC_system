@@ -30,7 +30,7 @@ require_once('lib.php');
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>サンプル注文処理</title>
-<link rel="stylesheet" type="text/css" href="../css/main.css">
+<link rel="stylesheet" type="text/css" href="../../css/main.css">
 </head>
 
 <body>
