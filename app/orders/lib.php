@@ -352,13 +352,14 @@ function get_google_token($redirect_uri = '') {
 	// アクセストークンのファイルがあれば読み込み
     if (file_exists($token_path)) {
         $access_token = json_decode(file_get_contents($token_path), true);
-    } else {
+	} else {
 		echo 'アクセストークンのファイルがありません'."<br />\n";
 		if (!file_exists($token_path)) {
 			touch($token_path);
 			echo "アクセストークンファイルを作成しました<br />\n";
 		}
-		auth_manually($client);
+		$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+		return null;
 	}
 
 	// アクセストークンの期限をチェック
@@ -366,9 +367,10 @@ function get_google_token($redirect_uri = '') {
     $expires_in = isset($access_token['expires_in']) ? $access_token['expires_in'] : 0;
     $current_time = time();
 	
-	// アクセストークンが期限切れなら手動認証へ
+	// アクセストークンが期限切れなら再認証URLをセットして null を返す（die しない）
     if ($created_timestamp + $expires_in < $current_time) {
-		auth_manually($client);
+		$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+		return null;
     } else {
 	// アクセストークンが期限内ならそのまま使う
         //echo "トークンは有効です。<br />\n";
@@ -381,13 +383,10 @@ function get_google_token($redirect_uri = '') {
 }
 
 function auth_manually($client) {
-	// 新しいトークンを取得
+	// 新しいトークンを取得（呼び出し元で die せず再認証ボタンを表示するため、未使用）
 	$auth_url = $client->createAuthUrl();
-	$redirect_uri = $client->getRedirectUri();
-	$header = 'Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL);
+	$GLOBALS['google_auth_url'] = $auth_url;
 	echo "トークンは期限切れです。<a href='".filter_var($auth_url, FILTER_SANITIZE_URL)."' class='button1'>再認証</a>";
-	die();
-	//header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
 }
 
 // Google Drive API フォルダID取得

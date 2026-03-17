@@ -6,6 +6,14 @@ list($order_info, $order) = get_order_info($secret_key, $license_key, $sample_fl
 // Google クライアントの設定
 $client = get_google_token($google_redirect_uri);
 
+if ($client === null) {
+	$auth_url = $GLOBALS['google_auth_url'] ?? '#';
+	echo "トークンは期限切れです。<a href='".htmlspecialchars($auth_url, ENT_QUOTES, 'UTF-8')."' class='button1'>再認証</a><br /><br />\n";
+	$service = null;
+	$folder_id = null;
+	return;
+}
+
 // Driveサービスオブジェクトの作成
 $service = new Google_Service_Drive($client);
 

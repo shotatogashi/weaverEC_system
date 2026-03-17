@@ -49,6 +49,7 @@ $google_redirect_uri = 'order_book.php';
 
 require_once('inc/preprocess.php');
 
+if (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
 // ファイル名取得
 $year_month = date("Y_m", $str_month);
 
@@ -175,6 +176,9 @@ try {
 	die();
 }
 
+} else {
+	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
+}
 ?>
 <p><a href="update_license.php" class="button1">ライセンス更新</a></p>
 <p><a href="index.php" class="button1">トップに戻る</a></p>

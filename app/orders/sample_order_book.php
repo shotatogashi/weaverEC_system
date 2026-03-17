@@ -60,6 +60,7 @@ if (count($order_info) == 0) {
 	die();
 }
 
+if (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
 foreach ($order_info as $order_num => $customer_info) {
 
 	// 上書き確認
@@ -82,6 +83,9 @@ foreach ($order_info as $order_num => $customer_info) {
 		echo "ファイルが既に存在しています。書き込みません。<br />\n";
 	}
 	echo "<br />\n";
+}
+} else {
+	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
 }
 ?>
 <p><a href="index.php" class="button1">トップに戻る</a></p>
