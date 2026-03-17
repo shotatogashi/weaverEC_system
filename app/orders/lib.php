@@ -404,7 +404,6 @@ function get_folder_id($service, $folder_name) {
         $folder_id = $folders->getFiles()[0]->getId();
     } else {
         $folder_id = 0;
-        echo '該当するフォルダが見つかりませんでした。';
     }
 
     return $folder_id;

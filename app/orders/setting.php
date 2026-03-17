@@ -34,6 +34,10 @@ $config['write_drive_flg'] = TRUE;
 $config['debug_flg'] = filter_var(getenv('DEBUG_FLG'), FILTER_VALIDATE_BOOLEAN)
     || (getenv('APP_ENV') === 'development');
 
+// テストモード：TRUE なら weaver-rakuten-test、FALSE なら weaver-rakuten を使用
+$config['test_mode_flg'] = filter_var(getenv('DRIVE_TEST_MODE'), FILTER_VALIDATE_BOOLEAN)
+    || (getenv('APP_ENV') === 'development');
+
 // Google OAuth リダイレクト用ベースURL（空なら自動検出。redirect_uri_mismatch 時は明示指定を推奨）
 // $config['google_redirect_base_url'] = 'https://weaver-ec.sakura.ne.jp/';
 

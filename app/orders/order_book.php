@@ -50,7 +50,9 @@ $google_redirect_uri = 'order_book.php';
 
 require_once('inc/preprocess.php');
 
-if (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
+if (!empty($folder_not_found)) {
+	echo "<hr>\n";
+} elseif (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
 // ファイル名取得
 $year_month = date("Y_m", $str_month);
 

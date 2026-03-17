@@ -55,7 +55,9 @@ $google_redirect_uri = '';
 require_once('inc/preprocess.php');
 
 // 30件 ファイルアップロード
-if (count($order_info) == 0) {
+if (!empty($folder_not_found)) {
+	echo "<hr>\n";
+} elseif (count($order_info) == 0) {
 	echo "注文処理をスキップします。<br />\n";
 } elseif (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
 foreach ($order_info as $order_num => $customer_info) {

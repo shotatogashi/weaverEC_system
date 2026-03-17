@@ -39,10 +39,13 @@ try {
 }
 
 // フォルダID取得
-$folder_id = get_folder_id($service, 'weaver-rakuten');
+$folder_name = !empty($config['test_mode_flg']) ? 'weaver-rakuten-test' : 'weaver-rakuten';
+$folder_id = get_folder_id($service, $folder_name);
 if (empty($folder_id)) {
-	echo "フォルダID取得失敗。終了します";
-	die();
+	echo "該当するフォルダが見つかりませんでした。Google Driveに".htmlspecialchars($folder_name, ENT_QUOTES, 'UTF-8')."フォルダを作成してください。フォルダID取得失敗。この部分の処理はスキップします。<br />\n";
+	$folder_id = null;
+	$folder_not_found = true;
+	return;
 }
 
 // 30件 ファイルアップロード
