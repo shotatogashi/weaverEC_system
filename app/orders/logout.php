@@ -2,6 +2,10 @@
 session_start();
 require_once __DIR__ . '/setting.php';
 
+// 管理・一般ユーザセッションの破棄
+unset($_SESSION['admin_authenticated'], $_SESSION['admin_login_time']);
+unset($_SESSION['user_authenticated'], $_SESSION['user_login_time']);
+
 $token_file = isset($_SESSION['user_name']) ? 'token_'.$_SESSION['user_name'].'.json' : 'token.json';
 $token_path = defined('APP_ORDERS_ROOT') ? APP_ORDERS_ROOT . '/' . $token_file : $token_file;
 $result_msg = '';
@@ -36,10 +40,7 @@ if ($file_handle === false) {
 <p>結果：
   <?= htmlspecialchars($result_msg) ?>
 </p>
-<p><a href="order_book.php" class="button1">通常注文処理</a></p>
-<p><a href="./" class="button1">サンプル注文処理</a></p>
-<p><a href="update_license.php" class="button1">ライセンス更新</a></p>
-<p><a href="index.php" class="button1">トップに戻る</a></p>
+<p><a href="login.php" class="button1">ログイン</a></p>
 <p><br />
   <br />
   

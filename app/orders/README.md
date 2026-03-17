@@ -8,7 +8,7 @@
 1. **認証情報のハードコード** → 環境変数（.env）から読み込み
 2. **SSL証明書検証の無効化** → 有効化（CURLOPT_SSL_VERIFYPEER=true）
 3. **CSRF対策の欠如** → トークンによる検証を追加
-4. **アクセス制御の欠如** → セッションによる認証・タイムアウト（30分）
+4. **アクセス制御の欠如** → セッションによる認証・タイムアウト（1日）、管理者/一般ユーザの二段階認証
 
 ### 中程度
 5. **エラー表示の有効化** → 環境変数（DEBUG_DISPLAY_ERRORS, APP_ENV）で制御、本番は無効
@@ -27,8 +27,12 @@ cp .env.example .env
 
 ```
 RAKUTEN_SECRET_KEY=SP244394_xxxxxxxx
+# ライセンス更新（update_license.php のみ）
 ADMIN_USERNAME=weaver
-ADMIN_PASSWORD=あなたのパスワード
+ADMIN_PASSWORD=管理者パスワード
+# 一般ページ（index.php, order_book.php, sample_order_book.php）
+USER_USERNAME=weaver_user
+USER_PASSWORD=一般ユーザパスワード
 ```
 
 3. `app/orders/data/license_key.txt` に楽天ライセンスキーを配置  

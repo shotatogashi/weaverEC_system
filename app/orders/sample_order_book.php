@@ -2,6 +2,8 @@
 
 session_start();
 require_once('setting.php');
+require_once __DIR__ . '/inc/auth.php';
+require_user_auth();
 /*
 http://wkimono.tokyo/app/rakuten_api/
 
@@ -40,7 +42,6 @@ require_once('lib.php');
 <body>
 <div class="center">
 <h1>サンプル注文処理</h1>
-<p><a href="update_license.php" class="button1">ライセンス更新</a></p>
 <?php
 require_once('inc/last_month.php');
 ?>
@@ -56,11 +57,8 @@ require_once('inc/preprocess.php');
 // 30件 ファイルアップロード
 echo "ヒットした注文件数は".count($order_info)."件です。<br />\n";
 if (count($order_info) == 0) {
-	echo "終了します";
-	die();
-}
-
-if (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
+	echo "注文処理をスキップします。<br />\n";
+} elseif (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
 foreach ($order_info as $order_num => $customer_info) {
 
 	// 上書き確認

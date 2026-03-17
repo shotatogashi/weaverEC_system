@@ -1,6 +1,8 @@
 <?php 
 session_start(); 
 require_once('setting.php');
+require_once __DIR__ . '/inc/auth.php';
+require_user_auth();
 /*
 composer require google/apiclient:^2.0
 
@@ -36,7 +38,6 @@ require_once("lib.php");
 <body>
 <div class="center">
 <h1>通常注文処理</h1>
-<p><a href="update_license.php" class="button1">ライセンス更新</a></p>
 <?php
 require_once('inc/last_month.php');
 ?>
@@ -180,7 +181,6 @@ try {
 	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
 }
 ?>
-<p><a href="update_license.php" class="button1">ライセンス更新</a></p>
 <p><a href="index.php" class="button1">トップに戻る</a></p>
 </div>
 </body>
