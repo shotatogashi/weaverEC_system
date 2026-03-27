@@ -52,10 +52,13 @@ require_once('inc/last_month.php');
 $sample_flg = TRUE;
 $google_redirect_uri = '';
 
+$GLOBALS['rakuten_api_error'] = false;
 require_once('inc/preprocess.php');
 
 // 30件 ファイルアップロード
 if (!empty($folder_not_found)) {
+	echo "<hr>\n";
+} elseif (!empty($GLOBALS['rakuten_api_error'])) {
 	echo "<hr>\n";
 } elseif (count($order_info) == 0) {
 	echo "注文処理をスキップします。<br />\n";
@@ -83,7 +86,7 @@ foreach ($order_info as $order_num => $customer_info) {
 	}
 	echo "<br />\n";
 }
-} else {
+} elseif (empty($GLOBALS['rakuten_api_error'])) {
 	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
 	echo "<hr>\n";
 }

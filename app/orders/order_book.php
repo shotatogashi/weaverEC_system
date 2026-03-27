@@ -48,9 +48,12 @@ require_once('inc/last_month.php');
 $sample_flg = FALSE;
 $google_redirect_uri = 'order_book.php';
 
+$GLOBALS['rakuten_api_error'] = false;
 require_once('inc/preprocess.php');
 
 if (!empty($folder_not_found)) {
+	echo "<hr>\n";
+} elseif (!empty($GLOBALS['rakuten_api_error'])) {
 	echo "<hr>\n";
 } elseif (isset($service) && $service !== null && isset($folder_id) && $folder_id !== null) {
 // ファイル名取得
@@ -175,11 +178,10 @@ try {
 	}
 } catch (Exception $e) {
 	echo "<p class=\"error\">エラー: ファイルの作成に失敗しました。既存ファイルは変更されていません。エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</p>\n";
-	die();
 }
 
 }
-} else {
+} elseif (empty($GLOBALS['rakuten_api_error'])) {
 	echo "Google Drive の認証が必要です。上記の「再認証」ボタンから認証を完了してください。<br />\n";
 	echo "<hr>\n";
 }

@@ -1,9 +1,17 @@
 <?php
 
+// インクルード後の親スクリプトで確実に参照できるよう GLOBALS に保持
+$GLOBALS['rakuten_api_error'] = false;
+
 // 楽天API
 echo "<hr>\n";
 echo "<h2 class=\"section-title\">楽天からデータを取得します</h2>\n";
-list($order_info, $order) = get_order_info($secret_key, $license_key, $sample_flg);
+list($order_info, $order, $rakuten_error) = get_order_info($secret_key, $license_key, $sample_flg);
+if ($rakuten_error !== null) {
+	echo htmlspecialchars($rakuten_error, ENT_QUOTES, 'UTF-8') . "<br />\n";
+	$GLOBALS['rakuten_api_error'] = true;
+	return;
+}
 
 // Google クライアントの設定
 $client = get_google_token($google_redirect_uri);

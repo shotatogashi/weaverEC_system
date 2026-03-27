@@ -27,6 +27,7 @@ function curl_api($curl, $params, $headers, $bln_xml = false, $bln_post = true){
 }
 
 // 楽天APIで注文情報を取得
+// 戻り値の第3要素: 失敗時はエラーメッセージ文字列、成功時は null
 function get_order_info($secret_key, $license_key, $sample_flg = TRUE) {
 	global $setting_month;
 
@@ -86,12 +87,10 @@ function get_order_info($secret_key, $license_key, $sample_flg = TRUE) {
 		curl_close($curl);
 		
 		if ($json_order_number === null) {
-			echo "楽天APIの応答が不正です。ネットワークまたはAPIの状態を確認してください。";
-			die();
+			return [[], [], '楽天APIの応答が不正です。ネットワークまたはAPIの状態を確認してください。'];
 		}
 		if (($json_order_number->Results->message ?? null) === 'Un-Authorised') {
-			echo "楽天APIの認証に失敗しました。ライセンスキー・シークレットキーの組み合わせが違います。";
-			die();
+			return [[], [], '楽天APIの認証に失敗しました。ライセンスキー・シークレットキーの組み合わせが違います。'];
 		}
 		$order_number_list = $json_order_number->orderNumberList ?? [];
 		if (empty($order_number_list)) {
@@ -126,7 +125,7 @@ function get_order_info($secret_key, $license_key, $sample_flg = TRUE) {
 		}
 	}
 
-	return [$order_info, $order];
+	return [$order_info, $order, null];
 /*
 ステータス	サブステータス名	サブステータスID
 注文確認待ち	保留	28604
