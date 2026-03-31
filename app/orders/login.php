@@ -6,6 +6,7 @@
  */
 session_start();
 require_once __DIR__ . '/setting.php';
+require_once __DIR__ . '/inc/auth.php';
 
 // リダイレクト先の検証（安全なパスのみ許可）
 $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? 'index.php';
@@ -13,15 +14,6 @@ $allowed = ['index.php', 'order_book.php', 'sample_order_book.php', 'update_lice
 $redirect = in_array($redirect, $allowed) ? $redirect : 'index.php';
 
 $is_admin_page = ($redirect === 'update_license.php');
-
-// セッションタイムアウトチェック（1日）
-$timeout = 86400;
-if (!empty($_SESSION['admin_login_time']) && (time() - $_SESSION['admin_login_time']) > $timeout) {
-    unset($_SESSION['admin_authenticated'], $_SESSION['admin_login_time']);
-}
-if (!empty($_SESSION['user_login_time']) && (time() - $_SESSION['user_login_time']) > $timeout) {
-    unset($_SESSION['user_authenticated'], $_SESSION['user_login_time']);
-}
 
 // 既に認証済みならリダイレクト
 if ($is_admin_page && !empty($_SESSION['admin_authenticated'])) {

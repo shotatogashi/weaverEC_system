@@ -1,7 +1,7 @@
 <?php
 /**
  * 共通認証モジュール
- * - セッションタイムアウト: 1日
+ * - セッションタイムアウト: 7日
  * - 管理者: update_license.php のみ（ADMIN_USERNAME / ADMIN_PASSWORD）
  * - 一般ユーザ: index.php, order_book.php, sample_order_book.php（USER_USERNAME / USER_PASSWORD）
  */
@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-define('AUTH_SESSION_TIMEOUT', 86400); // 1日
+define('AUTH_SESSION_TIMEOUT', 604800); // 7日
 
 // セッションタイムアウトチェック
 if (!empty($_SESSION['admin_login_time']) && (time() - $_SESSION['admin_login_time']) > AUTH_SESSION_TIMEOUT) {
