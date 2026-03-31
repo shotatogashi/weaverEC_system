@@ -50,7 +50,7 @@ require_once('inc/last_month.php');
 
 // 事前処理
 $sample_flg = TRUE;
-$google_redirect_uri = '';
+$google_redirect_uri = 'sample_order_book.php';
 
 $GLOBALS['rakuten_api_error'] = false;
 require_once('inc/preprocess.php');
