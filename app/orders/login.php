@@ -5,7 +5,7 @@
  * - その他 → USER_USERNAME / USER_PASSWORD で認証
  */
 session_start();
-require_once __DIR__ . '/setting.php';
+require_once dirname(__DIR__, 2) . '/inc/load_env.php';
 require_once __DIR__ . '/inc/auth.php';
 
 // リダイレクト先の検証（安全なパスのみ許可）

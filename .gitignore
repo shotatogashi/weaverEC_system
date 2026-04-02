@@ -9,4 +9,5 @@ client_secret.json
 .env.*.local
 app/orders/token*.json
 app/orders/data/license_key.txt
+data/license_key.txt
 .vscode/sftp.json

@@ -5,7 +5,7 @@
  * - CSRF対策
  */
 session_start();
-require_once __DIR__ . '/setting.php';
+require_once dirname(__DIR__, 2) . '/inc/load_env.php';
 require_once __DIR__ . '/inc/auth.php';
 require_admin_auth();
 
@@ -27,17 +27,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result_msg = '不正なリクエストです。';
     } else {
         $license_key = preg_replace('/[^a-zA-Z0-9_]/', '', trim($_POST['license_key'] ?? ''));
-        $license_file = APP_ORDERS_ROOT . '/data/license_key.txt';
-        $data_dir = dirname($license_file);
-        if (!is_dir($data_dir)) {
-            mkdir($data_dir, 0755, true);
-        }
-        if (file_put_contents($license_file, $license_key) !== false) {
-            $result_msg = '更新しました。';
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // トークン再生成
-            $show_form = false;
+        $license_file = getenv('RAKUTEN_LICENSE_KEY_PATH') ? trim((string) getenv('RAKUTEN_LICENSE_KEY_PATH')) : '';
+        if ($license_file === '') {
+            $result_msg = 'RAKUTEN_LICENSE_KEY_PATH が .env に設定されていません。キーは DocumentRoot 外のファイルにのみ保存できます。';
         } else {
-            $result_msg = 'ファイルの書き込みに失敗しました。';
+            $data_dir = dirname($license_file);
+            if (!is_dir($data_dir)) {
+                mkdir($data_dir, 0700, true);
+            }
+            if (file_put_contents($license_file, $license_key) !== false) {
+                $result_msg = '更新しました。';
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // トークン再生成
+                $show_form = false;
+            } else {
+                $result_msg = 'ファイルの書き込みに失敗しました。';
+            }
         }
     }
 }

@@ -8,21 +8,7 @@ define('APP_ORDERS_ROOT', __DIR__);
 // app/orders の2階層上 = プロジェクトルート（www/）
 define('APP_ORDERS_PARENT', dirname(__DIR__, 2));
 
-// .env ファイルの読み込み（プロジェクトルートの .env）
-$env_file = APP_ORDERS_PARENT . '/.env';
-if (file_exists($env_file)) {
-    foreach (file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
-        $line = trim($line);
-        if ($line === '' || strpos($line, '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value, " \t\n\r\0\x0B\"'");
-            putenv($name . '=' . $value);
-            $_ENV[$name] = $value;
-        }
-    }
-}
+require_once APP_ORDERS_PARENT . '/inc/load_env.php';
 
 // エラー表示：本番では無効化（環境変数で制御）
 $display_errors = filter_var(getenv('DEBUG_DISPLAY_ERRORS'), FILTER_VALIDATE_BOOLEAN)
@@ -41,19 +27,19 @@ $config['test_mode_flg'] = filter_var(getenv('DRIVE_TEST_MODE'), FILTER_VALIDATE
 // Google OAuth リダイレクト用ベースURL（空なら自動検出。redirect_uri_mismatch 時は明示指定を推奨）
 // $config['google_redirect_base_url'] = 'https://weaver-ec.sakura.ne.jp/';
 
-// 楽天API - 環境変数から読み込み（ハードコードしない）
+// 楽天API - 環境変数から読み込み（公開ディレクトリに置かない）
 $license_key = '';
 if (getenv('RAKUTEN_LICENSE_KEY')) {
     $license_key = preg_replace('/[^a-zA-Z0-9_]/', '', getenv('RAKUTEN_LICENSE_KEY'));
 }
-if (empty($license_key)) {
-    $license_key_file = APP_ORDERS_ROOT . '/data/license_key.txt';
-    if (!file_exists($license_key_file)) {
-        $license_key_file = APP_ORDERS_PARENT . '/data/license_key.txt';
+if ($license_key === '' && getenv('RAKUTEN_LICENSE_KEY_PATH')) {
+    $license_key_path = trim((string) getenv('RAKUTEN_LICENSE_KEY_PATH'));
+    if ($license_key_path !== '' && is_readable($license_key_path)) {
+        $license_key = preg_replace('/[^a-zA-Z0-9_]/', '', file_get_contents($license_key_path));
     }
-    if (file_exists($license_key_file)) {
-        $license_key = preg_replace('/[^a-zA-Z0-9_]/', '', file_get_contents($license_key_file));
-    }
+}
+if ($license_key === '') {
+    die('楽天ライセンスキーが取得できません。.env に RAKUTEN_LICENSE_KEY または RAKUTEN_LICENSE_KEY_PATH（DocumentRoot 外のファイル）を設定してください。');
 }
 
 $secret_key = getenv('RAKUTEN_SECRET_KEY') ?: '';
