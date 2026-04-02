@@ -1,13 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/setting.php';
+require_once __DIR__ . '/google_token_path.php';
+
+$token_file = isset($_SESSION['user_name']) ? 'token_'.$_SESSION['user_name'].'.json' : 'token.json';
+$token_path = weaver_google_token_path();
 
 // 管理・一般ユーザセッションの破棄
 unset($_SESSION['admin_authenticated'], $_SESSION['admin_login_time']);
 unset($_SESSION['user_authenticated'], $_SESSION['user_login_time']);
-
-$token_file = isset($_SESSION['user_name']) ? 'token_'.$_SESSION['user_name'].'.json' : 'token.json';
-$token_path = defined('APP_ORDERS_ROOT') ? APP_ORDERS_ROOT . '/' . $token_file : $token_file;
 $result_msg = '';
 
 $file_handle = fopen($token_path, 'w');

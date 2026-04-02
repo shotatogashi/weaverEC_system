@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/google_token_path.php';
+
 // 楽天API
 function curl_api($curl, $params, $headers, $bln_xml = false, $bln_post = true){
 	if($bln_post){
@@ -333,8 +335,7 @@ function create_google_client($redirect_uri = '') {
 function get_google_token($redirect_uri = '') {
     $access_token = [];
 	
-	$token_file = isset($_SESSION['user_name']) ? 'token_'.$_SESSION['user_name'].'.json' : 'token.json';
-	$token_path = defined('APP_ORDERS_ROOT') ? APP_ORDERS_ROOT . '/' . $token_file : $token_file;
+	$token_path = weaver_google_token_path();
 
 	// Google Clientオブジェクト生成    
 	$client = create_google_client($redirect_uri);
