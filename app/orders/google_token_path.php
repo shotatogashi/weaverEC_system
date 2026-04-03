@@ -1,8 +1,11 @@
 <?php
 /**
  * app/orders 用: Google OAuth トークンファイルの絶対パスを返す。
- * .env の TOKEN_STORAGE_PATH を優先（Web 公開ディレクトリ外を推奨）。
+ * .env の TOKEN_STORAGE_PATH を優先（例: /home/weaver-ec/storage/secure/tokens）。
  * 未設定時は従来どおり app/orders 直下。
+ *
+ * ファイル内容は JSON（access_token, refresh_token, expires_at ほか）。
+ * 本番では public 配下に置かず、TOKEN_STORAGE_PATH で DocumentRoot 外を指定すること。
  */
 function weaver_google_token_path() {
 	$token_file = isset($_SESSION['user_name']) ? 'token_' . $_SESSION['user_name'] . '.json' : 'token.json';

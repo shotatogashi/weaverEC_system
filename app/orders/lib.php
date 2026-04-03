@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/google_token_path.php';
+require_once __DIR__ . '/inc/google_token_store.php';
 
 // 楽天API
 function curl_api($curl, $params, $headers, $bln_xml = false, $bln_post = true){
@@ -324,62 +325,92 @@ function create_google_client($redirect_uri = '') {
         $base_url = $protocol . '://' . $host . $path;
     }
     $client->setRedirectUri($base_url . $redirect_uri);
+    // offline: リフレッシュトークン取得。consent: 同意画面を表示し再認可時にも refresh_token が返りやすい
     $client->setAccessType('offline');
-    $client->setApprovalPrompt('force');
-    
+    $client->setPrompt('consent');
+
     return $client;
 }
 
 // テスト前
-// トークン取得
+// トークン取得（expires_at 管理・リフレッシュトークンでアクセストークン自動更新）
 function get_google_token($redirect_uri = '') {
-    $access_token = [];
-	
 	$token_path = weaver_google_token_path();
-
-	// Google Clientオブジェクト生成    
 	$client = create_google_client($redirect_uri);
 
-	// 手動認証からの戻りの場合、codeパラメタからアクセストークンを入手しファイル書き込み
+	// OAuth コールバック: code から access_token / refresh_token / expires_in を取得して保存
 	if (isset($_GET['code'])) {
-		// echo $_GET['code']; die(); // コードほしい時だけ使う
 		$authCode = $_GET['code'];
 		$accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-		file_put_contents($token_path, json_encode($accessToken));
-		//echo "コード取得結果："; print_r($accessToken);
-	}
-
-	// アクセストークンのファイルがあれば読み込み
-    if (file_exists($token_path)) {
-        $access_token = json_decode(file_get_contents($token_path), true);
-	} else {
-		echo 'アクセストークンのファイルがありません'."<br />\n";
-		if (!file_exists($token_path)) {
-			touch($token_path);
-			echo "アクセストークンファイルを作成しました<br />\n";
+		if (!empty($accessToken['error'])) {
+			$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+			return null;
 		}
+		$previous = [];
+		if (file_exists($token_path)) {
+			$previous = json_decode((string) file_get_contents($token_path), true);
+			if (!is_array($previous)) {
+				$previous = [];
+			}
+		}
+		$tokenData = weaver_google_token_from_oauth_response($accessToken, $previous);
+		if (empty($tokenData['access_token'])) {
+			$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+			return null;
+		}
+		weaver_save_google_token_file($token_path, $tokenData);
+		$client->setAccessToken(weaver_google_token_for_client($tokenData));
+		return $client;
+	}
+
+	if (!file_exists($token_path)) {
+		echo 'アクセストークンのファイルがありません' . "<br />\n";
+		touch($token_path);
+		echo "アクセストークンファイルを作成しました<br />\n";
 		$GLOBALS['google_auth_url'] = $client->createAuthUrl();
 		return null;
 	}
 
-	// アクセストークンの期限をチェック
-    $created_timestamp = isset($access_token['created']) ? $access_token['created'] : 0;
-    $expires_in = isset($access_token['expires_in']) ? $access_token['expires_in'] : 0;
-    $current_time = time();
-	
-	// アクセストークンが期限切れなら再認証URLをセットして null を返す（die しない）
-    if ($created_timestamp + $expires_in < $current_time) {
+	$raw = file_get_contents($token_path);
+	$access_token = json_decode((string) $raw, true);
+	if (!is_array($access_token) || $raw === '' || trim($raw) === '') {
+		echo 'アクセストークンのファイルがありません' . "<br />\n";
 		$GLOBALS['google_auth_url'] = $client->createAuthUrl();
 		return null;
-    } else {
-	// アクセストークンが期限内ならそのまま使う
-        //echo "トークンは有効です。<br />\n";
+	}
 
-        // 有効な場合に実行する処理
-        $client->setAccessToken($access_token);
-    }
+	$access_token = weaver_normalize_google_token_data($access_token);
+	if (empty($access_token['access_token'])) {
+		$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+		return null;
+	}
 
-    return $client;
+	if (weaver_google_access_token_expired($access_token)) {
+		if (empty($access_token['refresh_token'])) {
+			$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+			return null;
+		}
+		try {
+			$newToken = $client->fetchAccessTokenWithRefreshToken($access_token['refresh_token']);
+		} catch (Throwable $e) {
+			$newToken = ['error' => $e->getMessage()];
+		}
+		if (!is_array($newToken) || !empty($newToken['error'])) {
+			$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+			return null;
+		}
+		$tokenData = weaver_google_token_from_oauth_response($newToken, $access_token);
+		if (empty($tokenData['access_token'])) {
+			$GLOBALS['google_auth_url'] = $client->createAuthUrl();
+			return null;
+		}
+		weaver_save_google_token_file($token_path, $tokenData);
+		$client->setAccessToken(weaver_google_token_for_client($tokenData));
+	} else {
+		$client->setAccessToken(weaver_google_token_for_client($access_token));
+	}
+
+	return $client;
 }
 
 function auth_manually($client) {

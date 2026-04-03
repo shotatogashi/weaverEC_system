@@ -20,7 +20,7 @@ if ($client === null) {
 	$auth_url = $GLOBALS['google_auth_url'] ?? '#';
 	echo "<hr>\n";
 	echo "<h2 class=\"section-title\">Google Driveにデータを書き込みます</h2>\n";
-	echo "トークンは期限切れです。<a href='".htmlspecialchars($auth_url, ENT_QUOTES, 'UTF-8')."' class='button1'>再認証</a><br /><br />\n";
+	echo "Google Drive の認証が必要です（未認証・期限切れ・リフレッシュ失敗など）。<a href='".htmlspecialchars($auth_url, ENT_QUOTES, 'UTF-8')."' class='button1'>再認証</a><br /><br />\n";
 	$service = null;
 	$folder_id = null;
 	return;
