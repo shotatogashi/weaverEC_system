@@ -14,6 +14,9 @@ require_once APP_ORDERS_PARENT . '/inc/load_env.php';
 $display_errors = filter_var(getenv('DEBUG_DISPLAY_ERRORS'), FILTER_VALIDATE_BOOLEAN)
     || (getenv('APP_ENV') === 'development');
 ini_set('display_errors', $display_errors ? 1 : 0);
+if ($display_errors) {
+    error_reporting(E_ALL);
+}
 
 $config['write_drive_flg'] = TRUE;
 // デバッグモード：本番では無効化（環境変数で制御）

@@ -5,7 +5,7 @@
  * - その他 → USER_USERNAME / USER_PASSWORD で認証
  */
 session_start();
-require_once dirname(__DIR__, 2) . '/inc/load_env.php';
+require_once __DIR__ . '/setting.php';
 require_once __DIR__ . '/inc/auth.php';
 
 // リダイレクト先の検証（安全なパスのみ許可）
@@ -27,6 +27,7 @@ if (!$is_admin_page && (!empty($_SESSION['user_authenticated']) || !empty($_SESS
 
 $result_msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
     if ($is_admin_page) {
         $valid_username = getenv('ADMIN_USERNAME') ?: '';
         $valid_password = getenv('ADMIN_PASSWORD') ?: '';
@@ -43,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $valid_password = getenv('USER_PASSWORD') ?: '';
         if (isset($_POST['username']) && isset($_POST['password'])
             && $_POST['username'] === $valid_username && $_POST['password'] === $valid_password) {
+            
             if (!empty($_SESSION[SESSION_PENDING_GOOGLE_TOKEN_PURGE])) {
                 require_once __DIR__ . '/google_token_path.php';
                 weaver_delete_google_token_file();
