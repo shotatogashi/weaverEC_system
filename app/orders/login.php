@@ -43,6 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $valid_password = getenv('USER_PASSWORD') ?: '';
         if (isset($_POST['username']) && isset($_POST['password'])
             && $_POST['username'] === $valid_username && $_POST['password'] === $valid_password) {
+            if (!empty($_SESSION[SESSION_PENDING_GOOGLE_TOKEN_PURGE])) {
+                require_once __DIR__ . '/google_token_path.php';
+                weaver_delete_google_token_file();
+                unset($_SESSION[SESSION_PENDING_GOOGLE_TOKEN_PURGE]);
+            }
             $_SESSION['user_authenticated'] = true;
             $_SESSION['user_login_time'] = time();
             session_regenerate_id(true);

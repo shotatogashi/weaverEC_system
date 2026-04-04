@@ -15,3 +15,13 @@ function weaver_google_token_path() {
 	}
 	return (defined('APP_ORDERS_ROOT') ? APP_ORDERS_ROOT : __DIR__) . '/' . $token_file;
 }
+
+/**
+ * 現在のセッションに対応する Google トークンファイルを削除する（存在しなければ何もしない）。
+ */
+function weaver_delete_google_token_file() {
+	$path = weaver_google_token_path();
+	if (is_file($path)) {
+		@unlink($path);
+	}
+}
