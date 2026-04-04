@@ -68,11 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
     .center { text-align: center; }
     .center h1 { color: #666; font-weight: 400; }
-    .login-footer {
-        margin-top: 2em;
-        padding-top: 1.2em;
-        border-top: 1px solid #ddd;
-    }
     </style>
 </head>
 <body>
@@ -92,9 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="password" id="password" name="password" required><br>
     <button type="submit">ログイン</button>
 </form>
-<footer class="login-footer">
-    <p><a href="index.php" class="button1">トップに戻る</a></p>
-</footer>
 </div>
 </body>
 </html>
