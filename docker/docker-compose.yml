@@ -5,3 +5,4 @@ services:
       - "8800:80"
     volumes:
       - ..:/var/www/html
+      - C:/github_weaver/storage:/home/weaver-ec/storage
